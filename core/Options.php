@@ -3,33 +3,27 @@
  * acswebservices
  * ${FILE_NAME}
  * User: Panagiotis Vagenas <pan.vagenas@gmail.com>
- * Date: 10/11/2014
- * Time: 2:42 μμ
+ * Date: 11/11/2014
+ * Time: 11:34 πμ
  * Copyright: 2014 Panagiotis Vagenas
  */
+
+namespace XDaRk;
+
+
 if (!defined('_PS_VERSION_'))
   exit;
-  
-class ACSWSOptions{
-	protected $optionsArrayName = 'ACSWebServicesOptions';
 
-//	protected $defaults = array(
-//		'companyId' => '997942446',
-//		'companyPass' => '8730',
-//		'username' => 'info',
-//		'password' => '1061',
-//		'customerId' => '2ΒΣ60129',
-//	);
+class Options extends Singleton{
+	protected $optionsArrayName;
 
-	protected $defaults = array(
-		'companyId' => 'demo',
-		'companyPass' => 'demo',
-		'username' => 'demo',
-		'password' => 'demo',
-		'customerId' => 'demo',
-	);
-
+	protected $defaults = array();
 	protected $stored = array();
+
+	protected function __construct(){
+		$this->optionsArrayName = __NAMESPACE__ . '-Options';
+		$this->init();
+	}
 
 	/**
 	 * @return $this
@@ -38,7 +32,7 @@ class ACSWSOptions{
 	 * @since ${VERSION}
 	 */
 	protected function init() {
-		$this->stored = unserialize( Configuration::get( $this->optionsArrayName ) );
+		$this->stored = unserialize( \Configuration::get( $this->optionsArrayName ) );
 
 		if ( ! $this->stored || empty( $this->stored ) ) {
 			$this->stored = $this->defaults;
@@ -55,14 +49,14 @@ class ACSWSOptions{
 	 * @param bool $default
 	 *
 	 * @return mixed
-	 * @throws Exception
+	 * @throws \Exception
 	 *
 	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
 	 * @since ${VERSION}
 	 */
 	public function getValue( $optionName, $default = false ) {
 		if ( ! isset( $this->defaults[ $optionName ] ) ) {
-			throw new Exception( 'No matching option' );
+			throw new \Exception( 'No matching option' );
 		}
 		if ( $default ) {
 			return $this->defaults[ $optionName ];
@@ -82,7 +76,20 @@ class ACSWSOptions{
 	public function saveOptions( $newOptions ) {
 		$this->stored = $this->validateOptions( $newOptions );
 
-		return Configuration::updateValue( $this->optionsArrayName, serialize( $this->stored ) );
+		return \Configuration::updateValue( $this->optionsArrayName, serialize( $this->stored ) );
+	}
+
+	/**
+	 * TODO Implement this here or in extenders
+	 * @param array $newOptions
+	 *
+	 * @return array
+	 *
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @since ${VERSION}
+	 */
+	protected function validateOptions(Array $newOptions){
+		return $newOptions;
 	}
 
 	/**
@@ -95,26 +102,5 @@ class ACSWSOptions{
 	 */
 	public function getOptionsArray( $defaults = false ) {
 		return $defaults ? $this->defaults : $this->stored;
-	}
-
-	/**
-	 *
-	 */
-	private function __construct() {
-		$this->init();
-	}
-
-	/**
-	 * Call this method to get singleton
-	 *
-	 * @return ACSWSOptions
-	 */
-	public static function Instance() {
-		static $inst = null;
-		if ( $inst === null ) {
-			$inst = new ACSWSOptions();
-		}
-
-		return $inst;
 	}
 }

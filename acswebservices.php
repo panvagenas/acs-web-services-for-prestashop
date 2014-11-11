@@ -10,6 +10,8 @@
 if (!defined('_PS_VERSION_'))
   exit;
 
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR . 'XDAutoLoader.php';
+
 class ACSWebServices extends Module {
 	/**
 	 * @var string Name of this plugin
@@ -48,10 +50,10 @@ class ACSWebServices extends Module {
 	 */
 	public $displayName = 'ACS Web Services';
 
-//	/**
-//	 * @var HelperSkroutzLoader
-//	 */
-//	protected $loader;
+	/**
+	 * @var \XDaRk\XDAutoLoader
+	 */
+	protected $loader;
 
 	public $bootstrap = true;
 
@@ -66,6 +68,9 @@ class ACSWebServices extends Module {
 
 		$this->confirmUninstall = $this->l( 'Are you sure you want to uninstall?' );
 
+		$this->loader = new \XDaRk\XDAutoLoader();
+		$this->loader->register();
+		$this->loader->addNamespace('\acsws\classes', dirname(__FILE__) . DIRECTORY_SEPARATOR . 'classes');
 	}
 
 	/**
@@ -79,23 +84,27 @@ class ACSWebServices extends Module {
 	public function getContent() {
 		$output = null;
 
-//		if ( Tools::isSubmit( 'submit' . $this->name ) ) {
-//			$newOptions = $_POST;
-//
-//			$this->loader->loadHelper( 'SkroutzOptions' );
-//			$skzOpts = HelperSkroutzOptions::Instance();
-//			if ( $skzOpts->saveOptions( $newOptions ) ) {
-//				$output .= $this->displayConfirmation( $this->l( 'Settings updated' ) );
-//			} else {
-//				$output .= $this->displayError( $this->l( 'There was an error saving options' ) );
-//			}
-//		}
+		if ( Tools::isSubmit( 'submit' . $this->name ) ) {
+			$newOptions = $_POST;
+
+			$opts = \acsws\classes\ACSWSOptions::getInstance();
+			if ( $opts->saveOptions( $newOptions ) ) {
+				$output .= $this->displayConfirmation( $this->l( 'Settings updated' ) );
+			} else {
+				$output .= $this->displayError( $this->l( 'There was an error saving options' ) );
+			}
+		}
 
 		return $output . $this->displayForm();
 	}
 
 	public function displayForm() {
-		return '';
+		$options = \acsws\classes\ACSWSOptions::getInstance();
+		$form = new \XDaRk\Form();
+		$form->init($this);
+		return $form->addTextField($this->l('Company ID'), 'companyId', 'lg')
+			->setFieldsValues($options->getOptionsArray())
+			->generateForm();
 	}
 
 	/**
@@ -145,11 +154,12 @@ class ACSWebServices extends Module {
 //
 //		var_dump($result);die;
 
-		require_once dirname(__FILE__) . '/classes/acssoap.php';
-		require_once dirname(__FILE__) . '/classes/acsws.php';
-		require_once dirname(__FILE__) . '/classes/acswsoptions.php';
+//		require_once dirname(__FILE__) . '/classes/acssoap.php';
+//		require_once dirname(__FILE__) . '/classes/acsws.php';
+//		require_once dirname(__FILE__) . '/classes/acswsoptions.php';
+		$o = \XDaRk\Options::getInstance();
 
-		$s = new ACSSoapArreaService(array(
+		$s = new acsws\classes\soap\ACSSoapAreaService(array(
 			'companyId' => '997942446',
 			'companyPass' => '8730',
 			'username' => 'info',
