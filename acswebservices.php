@@ -12,6 +12,10 @@ if (!defined('_PS_VERSION_'))
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR . 'XDAutoLoader.php';
 
+//$loader = new \XDaRk\XDAutoLoader();
+//$loader->register();
+//$loader->addNamespace('\acsws\classes', dirname(__FILE__) . DIRECTORY_SEPARATOR . 'classes');
+
 class ACSWebServices extends Module {
 	/**
 	 * @var string Name of this plugin
@@ -102,7 +106,12 @@ class ACSWebServices extends Module {
 		$options = \acsws\classes\ACSWSOptions::getInstance();
 		$form = new \XDaRk\Form();
 		$form->init($this);
+
 		return $form->addTextField($this->l('Company ID'), 'companyId', 'lg')
+			->addTextField($this->l('Company Password'), 'companyPass', 'lg')
+			->addTextField($this->l('Username'), 'username', 'lg')
+			->addTextField($this->l('User Password'), 'password', 'lg')
+			->addTextField($this->l('Customer ID'), 'customerId', 'lg')
 			->setFieldsValues($options->getOptionsArray())
 			->generateForm();
 	}
@@ -118,89 +127,43 @@ class ACSWebServices extends Module {
 			return false;
 		}
 
-		return $this->registerHook( 'DisplayHeader' );
+		return $this->registerHook( 'DisplayCarrierList' );
 	}
 
-	public function hookDisplayHeader( $p ) {
-//		$client = new SoapClient("https://services.acscourier.net/ACSPriceCalculation-portlet/axis/Plugin_ACSPriceCalculation_ACSPriceService?wsdl");
-//
-//		$companyId = "997942446"; // ID eterias - egatastashs
-//		$companyPass = "8730"; // kwdikos prosvashs eterias
-//		$username = "info"; // onoma xrhsth
-//		$password = "1061"; // kwdikos prosvashs xrhsth
-//		$customerId =  '2ΒΣ60129' ; // arithmos apostolhs
-//		$st_from= 'ΑΘ';
-//			$st_to= 'ΑΘ';
-//			$varos= 10.00;
-//			$itemType= 1;
-//			$width= 50;
-//			$height= 50;
-//			$length= 50;
-//			$date_par= date('d/m/Y');
-//			$products= 'ΑΝ';
-//			$xrewsh = 2;
-//			$zone = '';
-//			$asf_poso = 0;
-//			$invoiceCountry = 'GR';
-//			$lang = 'GR';
-//
-//		$result = $client->getPriceNew( $companyId,
-//			$companyPass,
-//			$username,
-//			$password,
-//			$customerId,
-//			'ΑΘ','ΑΘ',10.00, 1, 50, 50, 50, $date_par, $products, $xrewsh, $zone, $asf_poso, $invoiceCountry, $lang
-//		);
-//
-//		var_dump($result);die;
+	public function hookDisplayCarrierList( $p ) {
+		/* @var AddressCore $address */
+		$address = &$p['address'];
 
-//		require_once dirname(__FILE__) . '/classes/acssoap.php';
-//		require_once dirname(__FILE__) . '/classes/acsws.php';
-//		require_once dirname(__FILE__) . '/classes/acswsoptions.php';
-		$o = \XDaRk\Options::getInstance();
+		/* @var CookieCore $cookie */
+		$cookie = $p['cookie'];
 
-		$s = new acsws\classes\soap\ACSSoapAreaService(array(
-			'companyId' => '997942446',
-			'companyPass' => '8730',
-			'username' => 'info',
-			'password' => '1061',
-		));
-		$s->setParams(array(
-			'zip_code' => '13341',
-			'only_dp' => false
-		));
+		/* @var Cart $cart */
+		$cart = $p['cart'];
 
-		var_dump($s->findByZipCode());
-		var_dump($s->getByZipCode());
+		d($p);
 
-//		$s = new ACSSoapPriceCalcultation(array(
-//			'companyId' => '997942446',
-//			'companyPass' => '8730',
-//			'username' => 'info',
-//			'password' => '1061',
-//			'customerId' => '2ΒΣ60129',
-//		));
+		$loc1 = array(
+			'street' => 'Καλλινίκου',
+			'number' => '48',
+			'pc' => '13341',
+			'area' => 'Άνω Λιόσια'
+		);
+		$loc2 = array(
+			'street' => 'Αλμύρα',
+			'number' => '',
+			'pc' => '20300',
+			'area' => 'Αλμύρα'
+		);
+		$s = new \acsws\classes\ACSWS();
+//		$res = $s->validateAddress($loc1);
+//		var_dump($res);
+//		$res = $s->validateAddress($loc2);
+//		var_dump($res);
+
+//		$res = $s->getPrice('ΑΘ', 'ΚΟ', 1.5);
+//		var_dump($res);
 //
-//		$s->setParams(array(
-//			'st_from' => 'ΑΘ',
-//			'st_to' => 'ΑΘ',
-//			'varos' => 10.00,
-//			'itemType' => 1,
-//			'width' => 50,
-//			'height' => 50,
-//			'length' => 50,
-//			'date_par' => date('d/m/Y'),
-//			'products' => 'ΑΝ',
-//			'xrewsh' => 2,
-//			'zone' => '',
-//			'asf_poso' => 0,
-//			'invoiceCountry' => 'GR',
-//			'lang' => 'GR'
-//		));
-//
-//		var_dump($s->getPriceNew());
-		die;
-
+//		die(__METHOD__);
 	}
 
 	/**

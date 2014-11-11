@@ -13,26 +13,18 @@ namespace acsws\classes\soap;
 if (!defined('_PS_VERSION_'))
   exit;
 
-class ACSSoapAreaService extends ACSSoap{
-	protected $wsdl = 'https://services.acscourier.net/ACS-AddressValidationNew-portlet/axis/Plugin_ACSAddressValidation_ACSAreaService?wsdl';
+class ACSSoapAddressService extends ACSSoap{
+	protected $wsdl = 'https://services.acscourier.net/ACS-AddressValidationNew-portlet/axis/Plugin_ACSAddressValidation_ACSAddressWithConfidenceV1Service?wsdl';
 	protected $requiredParams = array(
-		'zip_code',
-		'only_dp'
+		'address',
+		'lang'
 	);
 
 	public function __construct(Array $clientOptions){
 		parent::__construct($this->wsdl, $clientOptions);
 	}
 
-	public function findByZipCode(){
-		if(!$this->isReadyForCall()){
-			return false;
-		}
-		return $this->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
-	}
-
-	public function getByZipCode(){
-		var_dump($this->params);
+	public function validateAddress(){
 		if(!$this->isReadyForCall()){
 			return false;
 		}

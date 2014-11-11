@@ -30,24 +30,26 @@ class Form extends \HelperFormCore {
 	/**
 	 * @param $label
 	 * @param $name
-	 * @param $class
+	 * @param string $class
 	 * @param bool $required
 	 * @param bool $hint
 	 * @param bool $description
+	 *
+	 * @param bool $prefix
+	 * @param bool $suffix
 	 *
 	 * @return $this
 	 *
 	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
 	 * @since ${VERSION}
 	 */
-	public function addTextField( $label, $name, $class = '', $required = true, $hint = false, $description = false ) {
+	public function addTextField( $label, $name, $class = 'lg', $required = true, $hint = false, $description = false, $prefix = false, $suffix = false, $type = 'text' ) {
 		$f = array(
-			'type'     => 'text',
+			'type'     => $type,
 			'label'    => $label,
 			'name'     => $name,
 			'class'    => $class,
 			'required' => $required,
-			'prefix'   => _PS_ROOT_DIR_ . '/'
 		);
 		if ( $hint !== false ) {
 			$f['hint'] = $hint;
@@ -55,15 +57,25 @@ class Form extends \HelperFormCore {
 		if ( $description !== false ) {
 			$f['description'] = $description;
 		}
+		if ( $prefix !== false ) {
+			$f['prefix'] = $prefix;
+		}
+		if ( $suffix !== false ) {
+			$f['suffix'] = $suffix;
+		}
 		$this->addField( $f );
 
 		return $this;
 	}
 
+	public function addPasswordField( $label, $name, $class = 'lg', $required = true, $hint = false, $description = false, $prefix = false, $suffix = false ){
+		return $this->addTextField($label, $name, $class, $required, $hint, $description, $prefix, $suffix, 'password');
+	}
+
 	/**
 	 * @param $label
 	 * @param $name
-	 * @param $class
+	 * @param string $class
 	 * @param array $options
 	 * @param bool $required
 	 * @param bool $hint
@@ -71,12 +83,15 @@ class Form extends \HelperFormCore {
 	 * @param string $optionId
 	 * @param string $optionName
 	 *
+	 * @param bool $prefix
+	 * @param bool $suffix
+	 *
 	 * @return $this
 	 *
 	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
 	 * @since ${VERSION}
 	 */
-	public function addSelectField( $label, $name, $class, Array $options, $required = true, $hint = false, $description = false, $optionId = 'id_option', $optionName = 'name' ) {
+	public function addSelectField( $label, $name, $class = 'lg', Array $options, $required = true, $hint = false, $description = false, $optionId = 'id_option', $optionName = 'name', $prefix = false, $suffix = false ) {
 		$f = array(
 			'type'     => 'select',
 			'label'    => $label,
@@ -95,6 +110,12 @@ class Form extends \HelperFormCore {
 		if ( $description !== false ) {
 			$f['description'] = $description;
 		}
+		if ( $prefix !== false ) {
+			$f['prefix'] = $prefix;
+		}
+		if ( $suffix !== false ) {
+			$f['suffix'] = $suffix;
+		}
 		$this->addField( $f );
 
 		return $this;
@@ -103,7 +124,7 @@ class Form extends \HelperFormCore {
 	/**
 	 * @param $label
 	 * @param $name
-	 * @param $class
+	 * @param string $class
 	 * @param array $options
 	 * @param bool $required
 	 * @param bool $hint
@@ -111,12 +132,15 @@ class Form extends \HelperFormCore {
 	 * @param string $optionId
 	 * @param string $optionName
 	 *
+	 * @param bool $prefix
+	 * @param bool $suffix
+	 *
 	 * @return $this
 	 *
 	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
 	 * @since ${VERSION}
 	 */
-	public function addMultiSelectField( $label, $name, $class, Array $options, $required = false, $hint = false, $description = false, $optionId = 'id_option', $optionName = 'name' ) {
+	public function addMultiSelectField( $label, $name, $class = 'lg', Array $options, $required = false, $hint = false, $description = false, $optionId = 'id_option', $optionName = 'name', $prefix = false, $suffix = false ) {
 		$f = array(
 			'type'     => 'select',
 			'label'    => $label,
@@ -136,6 +160,12 @@ class Form extends \HelperFormCore {
 		if ( $description !== false ) {
 			$f['description'] = $description;
 		}
+		if ( $prefix !== false ) {
+			$f['prefix'] = $prefix;
+		}
+		if ( $suffix !== false ) {
+			$f['suffix'] = $suffix;
+		}
 		$this->addField( $f );
 
 		return $this;
@@ -144,19 +174,22 @@ class Form extends \HelperFormCore {
 	/**
 	 * @param $label
 	 * @param $name
-	 * @param $class
+	 * @param string $class
 	 * @param array $values
 	 * @param bool $required
 	 * @param bool $isBool
 	 * @param bool $hint
 	 * @param bool $description
 	 *
+	 * @param bool $prefix
+	 * @param bool $suffix
+	 *
 	 * @return $this
 	 *
 	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
 	 * @since ${VERSION}
 	 */
-	public function addSwitchField( $label, $name, $class, Array $values, $required = true, $isBool = true, $hint = false, $description = false ) {
+	public function addSwitchField( $label, $name, $class = 'lg', Array $values, $required = true, $isBool = true, $hint = false, $description = false, $prefix = false, $suffix = false ) {
 		$f = array(
 			'type'     => 'select',
 			'label'    => $label,
@@ -171,6 +204,12 @@ class Form extends \HelperFormCore {
 		}
 		if ( $description !== false ) {
 			$f['description'] = $description;
+		}
+		if ( $prefix !== false ) {
+			$f['prefix'] = $prefix;
+		}
+		if ( $suffix !== false ) {
+			$f['suffix'] = $suffix;
 		}
 		$this->addField( $f );
 
@@ -190,11 +229,15 @@ class Form extends \HelperFormCore {
 					if ( $this->isMultiSelectField( $fi ) && isset( $fieldValues[ rtrim( $fi['name'], '[]' ) ] ) ) {
 						$this->fields_value[ $fi['name'] ] = $fieldValues[ rtrim( $fi['name'], '[]' ) ];
 						unset ( $fieldValues[ rtrim( $fi['name'], '[]' ) ] );
+					} elseif(isset($fieldValues[$fi['name']])){
+						$this->fields_value[ $fi['name'] ] = $fieldValues[$fi['name']];
 					}
 				}
 			}
 		}
+
 		array_merge( $this->fields_value, $fieldValues );
+
 		return $this;
 	}
 
@@ -224,13 +267,13 @@ class Form extends \HelperFormCore {
 	 */
 	public function setTab( $index, $title, $image, $submitTitle = 'Save', $submitClass = 'button pull-right' ) {
 		$this->tab                                     = $index;
-		$this->fields_form[ $index ]['form']['legend'] = array(
-			'title' => $title,
-			'image' => $image
-		);
+		$this->fields_form[ $index ]['form']['legend'] = array( 'title' => $title);
+		if ( $image ) {
+			$this->fields_form[ $index ]['form']['legend']['image'] = $image;
+		}
 		$this->fields_form[ $index ]['form']['submit'] = array(
 			'title' => $submitTitle,
-			'image' => $submitClass
+			'class' => $submitClass
 		);
 
 		return $this;
@@ -267,7 +310,13 @@ class Form extends \HelperFormCore {
 	 * @since ${VERSION}
 	 */
 	public function addField( $field ) {
-		if ( ! is_array( $this->fields_form[ $this->tab ]['form']['input'] ) ) {
+		if (!isset($this->fields_form[ $this->tab ]) || ! is_array( $this->fields_form[ $this->tab ] ) ) {
+			$this->fields_form[ $this->tab ] = array();
+		}
+		if (!isset($this->fields_form[ $this->tab ]['form']) || ! is_array( $this->fields_form[ $this->tab ]['form'] ) ) {
+			$this->fields_form[ $this->tab ]['form'] = array();
+		}
+		if (!isset($this->fields_form[ $this->tab ]['form']['input']) || ! is_array( $this->fields_form[ $this->tab ]['form']['input'] ) ) {
 			$this->fields_form[ $this->tab ]['form']['input'] = array();
 		}
 		array_push( $this->fields_form[ $this->tab ]['form']['input'], $field );

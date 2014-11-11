@@ -54,6 +54,6 @@ class ACSSoapPriceCalculation extends ACSSoap{
 		if(!$this->isReadyForCall()){
 			return false;
 		}
-		return $this->__soapCall(__FUNCTION__, array_merge(array_values($this->clientOptions), array_values($this->params)));
+		return $this->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
 	}
 }

@@ -48,4 +48,14 @@ class ACSWSOptions extends Options{
 
 		return parent::validateOptions($newOptions);
 	}
+
+	public function getCustomerOptions(){
+		return array(
+			'companyId'   => $this->getValue( 'companyId' ),
+			'companyPass' => $this->getValue( 'companyPass' ),
+			'username'    => $this->getValue( 'username' ),
+			'password'    => $this->getValue( 'password' ),
+			'customerId'  => $this->getValue( 'customerId' ),
+		);
+	}
 }
