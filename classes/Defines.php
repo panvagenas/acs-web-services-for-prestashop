@@ -27,4 +27,6 @@ class Defines {
 
 	public static $_xreosi_apostolea = 2;
 	public static $_xreosi_paralipti = 4;
+
+	public static $_disprosito_array = array('ΔΠ', 'ΔΧ', 'ΔΚ');
 }

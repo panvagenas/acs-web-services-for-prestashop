@@ -18,13 +18,7 @@ abstract class ACSSoap extends \SoapClient{
 	protected $requiredParams = array();
 	protected $params = array();
 
-	public $clientOptions = array( /// TODO Remove these
-		'companyId' => '997942446',
-		'companyPass' => '8730',
-		'username' => 'info',
-		'password' => '1061',
-		'customerId' => '2ΒΣ60129',
-	);
+	public $clientOptions = array();
 
 	public function __construct($wsdl, Array $clientOptions){
 		$this->clientOptions = $clientOptions;
@@ -34,7 +28,7 @@ abstract class ACSSoap extends \SoapClient{
 	public function setParams(Array $params){
 		foreach ( $this->requiredParams as $k => $v ) {
 			if(!isset($params[$v])){
-				return null;
+				continue;
 			}
 			$this->params[$v] = $params[$v];
 		}
