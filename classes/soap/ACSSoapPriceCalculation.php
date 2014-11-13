@@ -40,20 +40,27 @@ class ACSSoapPriceCalculation extends ACSSoap{
 		if(!$this->isReadyForCall()){
 			return false;
 		}
-		return $this->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		return $this->checkWeight()->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
 	}
 
 	public function getPriceByVolume(){
 		if(!$this->isReadyForCall()){
 			return false;
 		}
-		return $this->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		return $this->checkWeight()->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
 	}
 
 	public function getPriceNew(){
 		if(!$this->isReadyForCall()){
 			return false;
 		}
-		return $this->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		return $this->checkWeight()->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+	}
+
+	protected function checkWeight(){
+		if(isset($this->params['weight']) && !($this->params['weight'] > 0)){
+			$this->params['weight'] = 0.01; // TODO Should this be defined from options?
+		}
+		return $this;
 	}
 }
