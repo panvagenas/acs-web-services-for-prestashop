@@ -165,16 +165,18 @@ class ACSWebServices extends Module {
 
 		$dp = $soap->isDisprosito($address) ? \acsws\classes\Defines::$_prod_Disprosita : false;
 
+
+
 		$stationId = $soap->getStationIdFromAddress( $address );
 
-		$price = $soap->getPrice( 'ΑΘ', $stationId, max( $weight, $volume ), false, $dp );
+		$price = $soap->getPrice( 'ΑΘ', $stationId, max( $weight, $volume ), false, false );
 
 		return $price;
 	}
 
 	public function hookDisplayCarrierList( $p ) {
 		/* @var AddressCore $address */
-		$address = &$p['address'];
+		$addressObj = &$p['address'];
 
 		/* @var CookieCore $cookie */
 		$cookie = $p['cookie'];
@@ -184,7 +186,73 @@ class ACSWebServices extends Module {
 
 //		d($p);
 
-		return "<div><h1>new Carrier</h1></div>";
+		$address = array(
+			'street' => $addressObj->address1 . ( $addressObj->address2 ? $addressObj->address2 : '' ),
+			'number' => null,
+			'pc'     => $addressObj->postcode,
+			'area'   => $addressObj->city,
+		);
+
+		$soap = \acsws\classes\ACSWS::getInstance();
+
+		$dp = $soap->isDisprosito( $address ) ? \acsws\classes\Defines::$_prod_Disprosita : false;
+
+		if ( $dp ) {
+			// add disprosita carier
+			$carrier = new Carrier( $cart->id_carrier );
+
+
+			$ar = array( // First address
+				'12,' => array(  // First delivery option available for this address
+					'carrier_list'            => array(
+						12 => array( // First carrier for this option
+							'instance'          => $carrier,
+							'logo'              => '',
+							'price_with_tax'    => 12.4,
+							'price_without_tax' => 12.4,
+							'package_list'      => array(
+								1,
+								3,
+							),
+						),
+					),
+					'is_best_grade'           => true,
+					// Does this option have the biggest grade (quick shipping) for this shipping address
+					'is_best_price'           => true,
+					// Does this option have the lower price for this shipping address
+					'unique_carrier'          => true,
+					// Does this option use a unique carrier
+					'total_price_with_tax'    => 12.5,
+					'total_price_without_tax' => 12.5,
+					'position'                => 5,
+					// Average of the carrier position
+				)
+			);
+
+			return '<div class="delivery_option alternate_item">
+									<div>
+										<table class="resume table table-bordered">
+											<tbody><tr>
+												<td class="delivery_option_radio">
+													<div class="radio" id=""><span class="checked"><input type="radio" checked="checked" value="5,"  data-key="5," name="delivery_option[10]" class="delivery_option_radio" id="delivery_option_10_1"></span></div>
+												</td>
+												<td class="delivery_option_logo">
+																																										<img alt="ACS Courier" src="/acs-presta/img/s/5.jpg">
+																																							</td>
+												<td>
+																																										<strong>ACS Courier</strong>
+																																											1 - 3 days
+																																																																																																												</td>
+												<td class="delivery_option_price">
+													<div class="delivery_option_price">
+																																																														15,50 € (με Φ.Π.Α.).																																																										</div>
+												</td>
+											</tr>
+										</tbody></table>
+										</div></div>';
+		}
+
+
 //		$loc1 = array(
 //			'street' => 'Καλλινίκου',
 //			'number' => '48',
