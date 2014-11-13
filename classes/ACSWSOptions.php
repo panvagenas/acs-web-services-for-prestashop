@@ -29,6 +29,10 @@ class ACSWSOptions extends Options{
 		'username' => 'demo',
 		'password' => 'demo',
 		'customerId' => 'demo',
+		'carrierList' => array(
+			'ACS_CLDE' => 'ACS Courier',
+			'ACS_DP'   => 'ACS Courier Πόρτα-Πόρτα',
+		)
 	);
 
 	/**
@@ -57,5 +61,18 @@ class ACSWSOptions extends Options{
 			'password'    => $this->getValue( 'password' ),
 			'customerId'  => $this->getValue( 'customerId' ),
 		);
+	}
+
+	public function deleteAllOptions(){
+		return $this->deleteCarriers() && \Configuration::deleteByName($this->optionsArrayName);
+	}
+
+	public function deleteCarriers(){
+		foreach ( $this->getValue('carrierList') as $ck => $cn ) {
+			$carrier = new \Carrier((int)\Configuration::get($ck));
+			$carrier->delete();
+			\Configuration::deleteByName($ck);
+		}
+		return true;
 	}
 }

@@ -17,7 +17,8 @@ require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPA
 //$loader->register();
 //$loader->addNamespace('\acsws\classes', dirname(__FILE__) . DIRECTORY_SEPARATOR . 'classes');
 
-class ACSWebServices extends Module {
+class ACSWebServices extends CarrierModule {
+	public $id_carrier;
 	/**
 	 * @var string Name of this plugin
 	 */
@@ -124,22 +125,73 @@ class ACSWebServices extends Module {
 	 * @since ${VERSION}
 	 */
 	public function install() {
-		if ( parent::install() == false ) {
+		// Call install parent method
+		if ( ! parent::install() ) {
 			return false;
 		}
+		// Execute module install MySQL commands
+//		$sql_file = dirname( __FILE__ ) . '/install/install.sql';
+//		if ( ! $this->loadSQLFile( $sql_file ) ) {
+//			return false;
+//		}
+		// Register hooks
+		if ( ! $this->registerHook( 'updateCarrier' ) OR
+		     ! $this->registerHook( 'displayCarrierList' ) OR
+		     ! $this->registerHook( 'displayAdminOrder' )
+		) {
+			return false;
+		}
+		// Install carriers
 
-		return $this->registerHook( 'DisplayCarrierList' ) && $this->registerHook( 'packageShippingCost' );
+
+		// All went well!
+		return $this->installCarriers();
 	}
 
-	public function hookPackageShippingCost( $p ) {
-		$carrier = new Carrier( (int) $p['id_carrier'] );
+	public function getOrderShippingCost( $params, $shipping_cost ) {
+		return $this->getOrderShippingCostExternal( $params );
+	}
 
-		if ( ! $carrier || $carrier->name !== 'ACS Courier' ) {
+	public function getOrderShippingCostExternal( $params ) {
+		if ( $this->id_carrier == Configuration::get('ACS_CLDE') ) {
+			return $this->packageShippingCost($params, false);
+		} elseif ($this->id_carrier == Configuration::get('ACS_DP')){
+			$dp = $this->packageShippingCost($params, true);
+			if(is_numeric($dp)){
+				return $dp;
+			}
+		}
+		return false;
+	}
+
+	public function hookDisplayCarrierList() {
+		return '';
+	}
+
+	public function hookDisplayAdminOrder() {
+		return '';
+	}
+
+	public function hookUpdateCarrier( $params ) {
+		$old_id_carrier = (int)$params['id_carrier'];
+		$new_id_carrier = (int)$params['carrier']->id;
+		if (Configuration::get('ACS_CLDE') == $old_id_carrier)
+			Configuration::updateValue('ACS_CLDE', $new_id_carrier);
+		if (Configuration::get('ACS_DP') == $old_id_carrier)
+			Configuration::updateValue('ACS_DP', $new_id_carrier);
+	}
+
+	public function hookExtraCarrier( $params ) {
+		return '';
+	}
+
+	public function packageShippingCost(Cart $cart, $dp ) {
+		$addressObj = new Address( $cart->id_address_delivery );
+
+		if($addressObj->country != 'Greece' && $addressObj->country != 'Ελλάδα'){
 			return false;
 		}
 
-		/* @var Cart $cart */
-		$cart   = $p['cart'];
 		$weight = 0;
 		$volume = 0;
 
@@ -151,8 +203,6 @@ class ACSWebServices extends Module {
 			}
 		}
 
-		$addressObj = new Address( $cart->id_address_delivery );
-
 		$address = array(
 			'street' => $addressObj->address1 . ( $addressObj->address2 ? $addressObj->address2 : '' ),
 			'number' => null,
@@ -163,118 +213,19 @@ class ACSWebServices extends Module {
 
 		$soap = \acsws\classes\ACSWS::getInstance();
 
-		$dp = $soap->isDisprosito($address) ? \acsws\classes\Defines::$_prod_Disprosita : false;
-
-
+		if($dp && !$soap->isDisprosito( $address )){
+			return false;
+		}
 
 		$stationId = $soap->getStationIdFromAddress( $address );
 
-		$price = $soap->getPrice( 'ΑΘ', $stationId, max( $weight, $volume ), false, false );
-
-		return $price;
-	}
-
-	public function hookDisplayCarrierList( $p ) {
-		/* @var AddressCore $address */
-		$addressObj = &$p['address'];
-
-		/* @var CookieCore $cookie */
-		$cookie = $p['cookie'];
-
-		/* @var Cart $cart */
-		$cart = $p['cart'];
-
-//		d($p);
-
-		$address = array(
-			'street' => $addressObj->address1 . ( $addressObj->address2 ? $addressObj->address2 : '' ),
-			'number' => null,
-			'pc'     => $addressObj->postcode,
-			'area'   => $addressObj->city,
-		);
-
-		$soap = \acsws\classes\ACSWS::getInstance();
-
-		$dp = $soap->isDisprosito( $address ) ? \acsws\classes\Defines::$_prod_Disprosita : false;
-
-		if ( $dp ) {
-			// add disprosita carier
-			$carrier = new Carrier( $cart->id_carrier );
-
-
-			$ar = array( // First address
-				'12,' => array(  // First delivery option available for this address
-					'carrier_list'            => array(
-						12 => array( // First carrier for this option
-							'instance'          => $carrier,
-							'logo'              => '',
-							'price_with_tax'    => 12.4,
-							'price_without_tax' => 12.4,
-							'package_list'      => array(
-								1,
-								3,
-							),
-						),
-					),
-					'is_best_grade'           => true,
-					// Does this option have the biggest grade (quick shipping) for this shipping address
-					'is_best_price'           => true,
-					// Does this option have the lower price for this shipping address
-					'unique_carrier'          => true,
-					// Does this option use a unique carrier
-					'total_price_with_tax'    => 12.5,
-					'total_price_without_tax' => 12.5,
-					'position'                => 5,
-					// Average of the carrier position
-				)
-			);
-
-			return '<div class="delivery_option alternate_item">
-									<div>
-										<table class="resume table table-bordered">
-											<tbody><tr>
-												<td class="delivery_option_radio">
-													<div class="radio" id=""><span class="checked"><input type="radio" checked="checked" value="5,"  data-key="5," name="delivery_option[10]" class="delivery_option_radio" id="delivery_option_10_1"></span></div>
-												</td>
-												<td class="delivery_option_logo">
-																																										<img alt="ACS Courier" src="/acs-presta/img/s/5.jpg">
-																																							</td>
-												<td>
-																																										<strong>ACS Courier</strong>
-																																											1 - 3 days
-																																																																																																												</td>
-												<td class="delivery_option_price">
-													<div class="delivery_option_price">
-																																																														15,50 € (με Φ.Π.Α.).																																																										</div>
-												</td>
-											</tr>
-										</tbody></table>
-										</div></div>';
+		if(!$stationId){
+			return false;
 		}
 
+		$price = $soap->getPrice( 'ΑΘ', $stationId, max( $weight, $volume ), false, $dp ? \acsws\classes\Defines::$_prod_Disprosita : false );
 
-//		$loc1 = array(
-//			'street' => 'Καλλινίκου',
-//			'number' => '48',
-//			'pc' => '13341',
-//			'area' => 'Άνω Λιόσια'
-//		);
-//		$loc2 = array(
-//			'street' => 'Αλμύρα',
-//			'number' => '',
-//			'pc' => '20300',
-//			'area' => 'Αλμύρα'
-//		);
-//		$s = new \acsws\classes\ACSWS();
-//		$res = $s->validateAddress($loc1);
-//		var_dump($res);
-//		$res = $s->validateAddress($loc2);
-//		var_dump($res);
-
-//		$res = $s->getPrice('ΑΘ', 'ΚΟ', 1.5);
-//		var_dump($res);
-//
-//		die(__METHOD__);
+		return $price;
 	}
 
 	/**
@@ -284,8 +235,79 @@ class ACSWebServices extends Module {
 	 * @since ${VERSION}
 	 */
 	public function uninstall() {
-		if ( ! parent::uninstall() ) {
-			return false;
+		return parent::uninstall() && \acsws\classes\ACSWSOptions::getInstance()->deleteAllOptions();
+	}
+
+	public function installCarriers() {
+		foreach ( \acsws\classes\ACSWSOptions::getInstance()->getValue('carrierList') as $carrier_key => $carrier_name ) {
+			$carrierId = Configuration::get( $carrier_key );
+			if ( $carrierId < 1 ) {
+				// Create carrier
+				$carrier                     = new Carrier();
+				$carrier->name               = $carrier_name;
+				$carrier->id_tax_rules_group = 0;
+				$carrier->active             = 1;
+				$carrier->deleted            = 0;
+				foreach ( Language::getLanguages( true ) as $language ) {
+					// TODO Carrier delay
+					$carrier->delay[ (int) $language['id_lang'] ] = '' . $carrier_name;
+				}
+				$carrier->shipping_handling    = 1;
+				$carrier->range_behavior       = 0;
+				$carrier->is_module            = 1;
+				$carrier->shipping_external    = 1;
+				$carrier->external_module_name = $this->name;
+				$carrier->need_range           = 1;
+				if ( ! $carrier->add() ) {
+					return false;
+				}
+				// Associate carrier to all groups
+				$groups = Group::getGroups( true );
+				foreach ( $groups as $group ) {
+					Db::getInstance()->insert( 'carrier_group', array(
+							'id_carrier' => (int) $carrier->id,
+							'id_group'   => (int) $group['id_group']
+						) );
+				}
+				// Create price range
+				$rangePrice             = new RangePrice();
+				$rangePrice->id_carrier = $carrier->id;
+				$rangePrice->delimiter1 = '0';
+				$rangePrice->delimiter2 = '10000';
+				$rangePrice->add();
+				// Create weight range
+				$rangeWeight             = new RangeWeight();
+				$rangeWeight->id_carrier = $carrier->id;
+				$rangeWeight->delimiter1 = '0';
+				$rangeWeight->delimiter2 = '10000';
+				$rangeWeight->add();
+				// Associate carrier to all zones
+				$zones = Zone::getZones( true );
+				foreach ( $zones as $zone ) {
+					Db::getInstance()->insert( 'carrier_zone', array(
+							'id_carrier' => (int) $carrier->id,
+							'id_zone'    => (int) $zone['id_zone']
+						) );
+					Db::getInstance()->insert( 'delivery', array(
+							'id_carrier'      => (int) $carrier->id,
+							'id_range_price'  => (int) $rangePrice->id,
+							'id_range_weight' => null,
+							'id_zone'         => (int) $zone['id_zone'],
+							'price'           => '0'
+						) );
+					Db::getInstance()->insert( 'delivery', array(
+							'id_carrier'      => (int) $carrier->id,
+							'id_range_price'  => null,
+							'id_range_weight' => (int) $rangeWeight->id,
+							'id_zone'         => (int) $zone['id_zone'],
+							'price'           => '0'
+						) );
+				}
+				// Copy Logo
+				copy( dirname( __FILE__ ) . '/img/logo.png', _PS_SHIP_IMG_DIR_ . '/' . (int) $carrier->id . '.jpg' );
+				// Save it in Configuration table
+				Configuration::updateValue( $carrier_key, $carrier->id );
+			}
 		}
 
 		return true;
