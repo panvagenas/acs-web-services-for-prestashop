@@ -104,6 +104,12 @@ class ACSWebServices extends CarrierModule {
 		return $output . $this->displayForm();
 	}
 
+	/**
+	 * @return string
+	 *
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @since ${VERSION}
+	 */
 	public function displayForm() {
 		$options = \acsws\classes\ACSWSOptions::getInstance();
 		$form    = new \XDaRk\Form();
@@ -125,33 +131,39 @@ class ACSWebServices extends CarrierModule {
 	 * @since ${VERSION}
 	 */
 	public function install() {
-		// Call install parent method
 		if ( ! parent::install() ) {
 			return false;
 		}
-		// Execute module install MySQL commands
-//		$sql_file = dirname( __FILE__ ) . '/install/install.sql';
-//		if ( ! $this->loadSQLFile( $sql_file ) ) {
-//			return false;
-//		}
-		// Register hooks
 		if ( ! $this->registerHook( 'updateCarrier' ) OR
 		     ! $this->registerHook( 'displayCarrierList' ) OR
 		     ! $this->registerHook( 'displayAdminOrder' )
 		) {
 			return false;
 		}
-		// Install carriers
-
-
-		// All went well!
 		return $this->installCarriers();
 	}
 
+	/**
+	 * @param $params
+	 * @param $shipping_cost
+	 *
+	 * @return bool
+	 *
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @since ${VERSION}
+	 */
 	public function getOrderShippingCost( $params, $shipping_cost ) {
 		return $this->getOrderShippingCostExternal( $params );
 	}
 
+	/**
+	 * @param $params
+	 *
+	 * @return bool
+	 *
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @since ${VERSION}
+	 */
 	public function getOrderShippingCostExternal( $params ) {
 		if ( $this->id_carrier == Configuration::get('ACS_CLDE') ) {
 			return $this->packageShippingCost($params, false);
@@ -164,14 +176,76 @@ class ACSWebServices extends CarrierModule {
 		return false;
 	}
 
-	public function hookDisplayCarrierList() {
-		return '';
+	/**
+	 * @return string
+	 *
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @since ${VERSION}
+	 */
+	public function hookDisplayCarrierList($params) {
+		$cart = $params['cart'];
+		$dp = $this->packageShippingCost($cart, true);
+		if(!$dp){
+			return '';
+		}
+		$addressObj = &$params['address'];
+		$soap = \acsws\classes\ACSWS::getInstance();
+		$storeInfo = $soap->validateAddress(array(
+			'street' => $addressObj->address1 . ( $addressObj->address2 ? $addressObj->address2 : '' ),
+			'number' => null,
+			'pc'     => $addressObj->postcode,
+			'area'   => $addressObj->city,
+		));
+
+		if(!isset($storeInfo[0])){
+			return '';
+		}
+
+//		var_dump($storeInfo);die;
+		return '
+		<script type="text/javascript">
+			var storeInfo = '.json_encode($this->object_to_array($storeInfo[0])).';
+			var dpCarrierId = '.Configuration::get('ACS_DP').';
+			var carrierId = '.Configuration::get('ACS_CLDE').';
+			var googleQ = "'.\XDaRk\TransLit::getInstance()->translateElEn($storeInfo[0]->station_address.', '.$storeInfo[0]->station_description).'";
+			console.log(storeInfo);
+			'.file_get_contents(dirname(__FILE__).'/assets/dp.js').'
+		</script>
+		';
 	}
 
+	public function object_to_array($data)
+	{
+		if(is_array($data) || is_object($data))
+		{
+			$result = array();
+
+			foreach($data as $key => $value) {
+				$result[$key] = $this->object_to_array($value);
+			}
+
+			return $result;
+		}
+
+		return $data;
+	}
+
+	/**
+	 * @return string
+	 *
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @since ${VERSION}
+	 */
 	public function hookDisplayAdminOrder() {
 		return '';
 	}
 
+	/**
+	 * @param $params
+	 *
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @since ${VERSION}
+	 */
 	public function hookUpdateCarrier( $params ) {
 		$old_id_carrier = (int)$params['id_carrier'];
 		$new_id_carrier = (int)$params['carrier']->id;
@@ -181,10 +255,27 @@ class ACSWebServices extends CarrierModule {
 			Configuration::updateValue('ACS_DP', $new_id_carrier);
 	}
 
+	/**
+	 * @param $params
+	 *
+	 * @return string
+	 *
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @since ${VERSION}
+	 */
 	public function hookExtraCarrier( $params ) {
 		return '';
 	}
 
+	/**
+	 * @param Cart $cart
+	 * @param $dp
+	 *
+	 * @return bool
+	 *
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @since ${VERSION}
+	 */
 	public function packageShippingCost(Cart $cart, $dp ) {
 		$addressObj = new Address( $cart->id_address_delivery );
 
@@ -238,6 +329,14 @@ class ACSWebServices extends CarrierModule {
 		return parent::uninstall() && \acsws\classes\ACSWSOptions::getInstance()->deleteAllOptions();
 	}
 
+	/**
+	 * @return bool
+	 * @throws Exception
+	 * @throws PrestaShopDatabaseException
+	 *
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @since ${VERSION}
+	 */
 	public function installCarriers() {
 		foreach ( \acsws\classes\ACSWSOptions::getInstance()->getValue('carrierList') as $carrier_key => $carrier_name ) {
 			$carrierId = Configuration::get( $carrier_key );
@@ -303,9 +402,7 @@ class ACSWebServices extends CarrierModule {
 							'price'           => '0'
 						) );
 				}
-				// Copy Logo
 				copy( dirname( __FILE__ ) . '/img/logo.png', _PS_SHIP_IMG_DIR_ . '/' . (int) $carrier->id . '.jpg' );
-				// Save it in Configuration table
 				Configuration::updateValue( $carrier_key, $carrier->id );
 			}
 		}

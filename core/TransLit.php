@@ -26,6 +26,17 @@ class TransLit extends Singleton{
 		}
 		return implode('', $ar);
 	}
+
+	public function translateElEn($string){
+		$ar = preg_split('//u',(string)$string, -1, PREG_SPLIT_NO_EMPTY);
+		foreach ( $ar as $k => $ch ) {
+			if(is_numeric($ch) || !isset($this->el_en[$ch])) continue;
+
+			$ar[$k] = $this->el_en[$ch];
+		}
+		return implode('', $ar);
+	}
+
 	protected $en_el = array(
 		'S' => 'Σ',
 		's' => 'σ'
@@ -41,13 +52,13 @@ class TransLit extends Singleton{
 		'Ε' => 'E',
 		'Έ' => 'É',
 		'Ζ' => 'Z',
-		'Η' => 'Ī',
-		'Ή' => 'Ī́',
+		'Η' => 'I',
+		'Ή' => 'I',
 		'Θ' => 'Th',
 		'Ι' => 'I',
-		'Ί' => 'Í',
-		'Ϊ' => 'Ï',
-		'ΐ' => 'ḯ',
+		'Ί' => 'I',
+		'Ϊ' => 'I',
+		'ΐ' => 'i',
 		'Κ' => 'K',
 		'Λ' => 'L',
 		'Μ' => 'M',
@@ -57,17 +68,17 @@ class TransLit extends Singleton{
 		'Ό' => 'Ó',
 		'Π' => 'P',
 		'Ρ' => 'R',
-		'Σ' => 'σ',
+		'Σ' => 'S',
 		'Τ' => 'T',
 		'Υ' => 'Y',
-		'Ύ' => 'Ý',
-		'Ϋ' => 'Ÿ',
-		'ΰ' => 'ÿ́',
+		'Ύ' => 'Y',
+		'Ϋ' => 'Y',
+		'ΰ' => 'Y',
 		'Φ' => 'F',
 		'Χ' => 'Ch',
 		'Ψ' => 'Ps',
-		'Ω' => 'Ō',
-		'Ώ' => 'Ṓ',
+		'Ω' => 'O',
+		'Ώ' => 'O',
 // lower case
 		'ς' => 's',
 		'α' => 'a',
@@ -93,7 +104,7 @@ class TransLit extends Singleton{
 		'ό' => 'ó',
 		'π' => 'p',
 		'ρ' => 'r',
-		'σ' => 'σ',
+		'σ' => 's',
 		'τ' => 't',
 		'υ' => 'y',
 		'ύ' => 'ý',
