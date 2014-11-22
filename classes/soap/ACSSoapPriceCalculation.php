@@ -40,21 +40,36 @@ class ACSSoapPriceCalculation extends ACSSoap{
 		if(!$this->isReadyForCall()){
 			return false;
 		}
-		return $this->checkWeight()->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		try{
+			$result = $this->checkWeight()->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		} catch(\Exception $e){
+			$result = false;
+		}
+		return $result;
 	}
 
 	public function getPriceByVolume(){
 		if(!$this->isReadyForCall()){
 			return false;
 		}
-		return $this->checkWeight()->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		try{
+			$result = $this->checkWeight()->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		}catch (\Exception $e){
+			$result = false;
+		}
+		return $result;
 	}
 
 	public function getPriceNew(){
 		if(!$this->isReadyForCall()){
 			return false;
 		}
-		return $this->checkWeight()->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		try{
+			$result = $this->checkWeight()->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		}catch (\Exception $e){
+			$result = false;
+		}
+		return $result;
 	}
 
 	protected function checkWeight(){

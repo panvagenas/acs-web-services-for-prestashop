@@ -33,66 +33,6 @@ class ACSWS extends Singleton{
 	 * @param $from
 	 * @param $to
 	 * @param $weight
-	 * @param int $width
-	 * @param int $height
-	 * @param int $length
-	 * @param bool $sendDate
-	 * @param bool $service
-	 * @param bool $charge
-	 * @param string $zone
-	 * @param int $insurance
-	 * @param string $invoiceCountry
-	 * @param string $lang
-	 *
-	 * @return bool
-	 *
-	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-	 * @since ${VERSION}
-	 */
-	public function getPriceNew( $from, $to, $weight, $width = 0, $height = 0, $length = 0, $sendDate = false, $service = false, $charge = false, $zone = '', $insurance = 0, $invoiceCountry = 'GR', $lang = 'GR' ) {
-		$sendDate  = $sendDate ? $sendDate : date('d/m/Y');
-		$service = $service ? $service : Defines::$_prod_PortaPorta;
-		$charge = $charge ? $charge : Defines::$_xreosi_apostolea;
-
-		$params = array(
-			'st_from'        => $from,
-			'st_to'          => $to,
-			'varos'          => $weight,
-			'itemType'       => '',
-			'width'          => $width,
-			'height'         => $height,
-			'length'         => $length,
-			'date_par'       => $sendDate,
-			'products'       => $service,
-			'xrewsh'         => $charge,
-			'zone'           => $zone,
-			'asf_poso'       => $insurance,
-			'invoiceCountry' => $invoiceCountry,
-			'lang'           => $lang
-		);
-
-		$call = $this->cache->hasCall(new ACSWSCall(__METHOD__, $params, null));
-		if($call){
-			return $call->result;
-		}
-
-		$soap = new ACSSoapPriceCalculation( ACSWSOptions::getInstance()->getCustomerOptions() );
-		$soap->setParams( $params );
-		$res = $soap->getPriceNew();
-
-		$price = false;
-		if(is_object($res) && isset($res->price)){
-			$price = $res->price;
-			$this->cache->storeCall(new ACSWSCall(__METHOD__, $params, $res->price));
-		}
-
-		return $price;
-	}
-
-	/**
-	 * @param $from
-	 * @param $to
-	 * @param $weight
 	 * @param bool $sendDate
 	 * @param bool $service
 	 * @param bool $charge

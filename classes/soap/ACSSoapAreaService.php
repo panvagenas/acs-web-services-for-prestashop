@@ -28,7 +28,12 @@ class ACSSoapAreaService extends ACSSoap{
 		if(!$this->isReadyForCall()){
 			return false;
 		}
-		return $this->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		try{
+			$result = $this->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		}catch (\Exception $e){
+			$result = false;
+		}
+		return $result;
 	}
 
 	public function getByZipCode(){
@@ -36,6 +41,11 @@ class ACSSoapAreaService extends ACSSoap{
 		if(!$this->isReadyForCall()){
 			return false;
 		}
-		return $this->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		try{
+			$result = $this->__soapCall(__FUNCTION__, array_merge($this->clientOptions, $this->params));
+		}catch (\Exception $e){
+			$result = false;
+		}
+		return $result;
 	}
 }
