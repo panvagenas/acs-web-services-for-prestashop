@@ -277,6 +277,9 @@ class ACSWebServices extends CarrierModule {
 	 * @since ${VERSION}
 	 */
 	public function packageShippingCost(Cart $cart, $dp ) {
+		if($cart->getOrderTotal(true, Cart::ONLY_PRODUCTS) > 80){ // TODO Implement in settings
+			return 0;
+		}
 		$addressObj = new Address( $cart->id_address_delivery );
 
 		if($addressObj->country != 'Greece' && $addressObj->country != 'Ελλάδα'){
