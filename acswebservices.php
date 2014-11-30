@@ -353,7 +353,7 @@ class ACSWebServices extends CarrierModule {
 				$carrier->deleted            = 0;
 				foreach ( Language::getLanguages( true ) as $language ) {
 					// TODO Carrier delay
-					$carrier->delay[ (int) $language['id_lang'] ] = '' . $carrier_name;
+					$carrier->delay[ (int) $language['id_lang'] ] = ' ';
 				}
 				$carrier->shipping_handling    = 1;
 				$carrier->range_behavior       = 0;
