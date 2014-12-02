@@ -208,7 +208,6 @@ class ACSWebServices extends CarrierModule {
 			var dpCarrierId = '.Configuration::get('ACS_DP').';
 			var carrierId = '.Configuration::get('ACS_CLDE').';
 			var googleQ = "'.\XDaRk\TransLit::getInstance()->translateElEn($storeInfo[0]->station_address.', '.$storeInfo[0]->station_description).'";
-			console.log(storeInfo);
 			'.file_get_contents(dirname(__FILE__).'/assets/dp.js').'
 		</script>
 		';
