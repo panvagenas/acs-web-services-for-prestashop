@@ -291,9 +291,9 @@ class ACSWebServices extends CarrierModule {
 
 		/* @var Product $product */
 		foreach ( $cart->getProducts() as $product ) {
-			$weight += $product['weight'] > 0 ? $product['weight'] : 0.1;
+			$weight += ($product['weight'] > 0 ? $product['weight'] : 0.1)*$product['cart_quantity'];
 			if ( is_numeric( $product['width'] ) && is_numeric( $product['height'] ) && is_numeric( $product['depth'] ) ) {
-				$value = ( $product['width'] * $product['height'] * $product['depth'] ) / 5000;
+				$value = (( $product['width'] * $product['height'] * $product['depth'] ) / 5000)*$product['cart_quantity'];
 				$volume += $value > 0 ? $value : 0.1;
 			}
 		}
