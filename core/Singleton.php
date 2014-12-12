@@ -8,7 +8,7 @@
  * Copyright: 2014 Panagiotis Vagenas
  */
 
-namespace XDaRk;
+namespace XDaRkOld;
 
 
 if (!defined('_PS_VERSION_'))

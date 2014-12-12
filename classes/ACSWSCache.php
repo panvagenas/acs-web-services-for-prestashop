@@ -10,7 +10,7 @@
 
 namespace acsws\classes;
 
-use XDaRk\Singleton;
+use XDaRkOld\Singleton;
 
 if (!defined('_PS_VERSION_'))
 	exit;

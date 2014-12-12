@@ -12,8 +12,8 @@ namespace acsws\classes;
 use acsws\classes\soap\ACSSoapAddressService;
 use acsws\classes\soap\ACSSoapAreaService;
 use acsws\classes\soap\ACSSoapPriceCalculation;
-use XDaRk\Singleton;
-use XDaRk\TransLit;
+use XDaRkOld\Singleton;
+use XDaRkOld\TransLit;
 
 if ( ! defined( '_PS_VERSION_' ) ) {
 	exit;

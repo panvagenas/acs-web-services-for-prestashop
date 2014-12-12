@@ -13,7 +13,7 @@ if ( ! defined( '_PS_VERSION_' ) ) {
 
 require_once dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR . 'XDAutoLoader.php';
 
-//$loader = new \XDaRk\XDAutoLoader();
+//$loader = new \XDaRkOldOld\XDAutoLoader();
 //$loader->register();
 //$loader->addNamespace('\acsws\classes', dirname(__FILE__) . DIRECTORY_SEPARATOR . 'classes');
 
@@ -57,7 +57,7 @@ class ACSWebServices extends CarrierModule {
 	public $displayName = 'ACS Web Services';
 
 	/**
-	 * @var \XDaRk\XDAutoLoader
+	 * @var \XDaRkOldOld\XDAutoLoader
 	 */
 	protected $loader;
 
@@ -74,7 +74,7 @@ class ACSWebServices extends CarrierModule {
 
 		$this->confirmUninstall = $this->l( 'Are you sure you want to uninstall?' );
 
-		$this->loader = new \XDaRk\XDAutoLoader();
+		$this->loader = new \XDaRkOld\XDAutoLoader();
 		$this->loader->register();
 		$this->loader->addNamespace( '\acsws\classes', dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'classes' );
 	}
@@ -112,7 +112,7 @@ class ACSWebServices extends CarrierModule {
 	 */
 	public function displayForm() {
 		$options = \acsws\classes\ACSWSOptions::getInstance();
-		$form    = new \XDaRk\Form();
+		$form    = new \XDaRkOld\Form();
 		$form->init( $this );
 
 		return $form->addTextField( $this->l( 'Company ID' ), 'companyId', 'lg' )
@@ -214,7 +214,7 @@ class ACSWebServices extends CarrierModule {
 			var storeInfo = '.json_encode($this->object_to_array($storeInfo[0])).';
 			var dpCarrierId = '.Configuration::get('ACS_DP').';
 			var carrierId = '.Configuration::get('ACS_CLDE').';
-			var googleQ = "'.\XDaRk\TransLit::getInstance()->translateElEn($storeInfo[0]->station_address.', '.$storeInfo[0]->station_description).'";
+			var googleQ = "'.\XDaRkOld\TransLit::getInstance()->translateElEn($storeInfo[0]->station_address.', '.$storeInfo[0]->station_description).'";
 			'.file_get_contents(dirname(__FILE__).'/assets/dp.js').'
 		</script>
 		';

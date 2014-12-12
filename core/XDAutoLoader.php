@@ -9,7 +9,7 @@
  * @link https://github.com/keradus/Psr4Autoloader
  */
 
-namespace XDaRk;
+namespace XDaRkOld;
 
 if (!defined('_PS_VERSION_'))
   exit;
@@ -78,7 +78,7 @@ class XDAutoLoader
 		spl_autoload_register(array($this, 'loadClass'));
 
 		// Register core namespace
-		$this->addNamespace('\XDaRk', dirname(__FILE__));
+		$this->addNamespace('\XDaRkOld', dirname(__FILE__));
 	}
 
 	/**

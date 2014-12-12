@@ -8,7 +8,7 @@
  * Copyright: 2014 Panagiotis Vagenas
  */
 
-namespace XDaRk;
+namespace XDaRkOld;
 
 
 class TransLit extends Singleton{

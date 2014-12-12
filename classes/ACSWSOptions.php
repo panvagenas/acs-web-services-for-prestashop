@@ -10,7 +10,7 @@
 
 namespace acsws\classes;
 
-use XDaRk\Options;
+use XDaRkOld\Options;
 
 if (!defined('_PS_VERSION_'))
   exit;
