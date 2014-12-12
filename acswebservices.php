@@ -184,18 +184,25 @@ class ACSWebServices extends CarrierModule {
 	 */
 	public function hookDisplayCarrierList($params) {
 		$cart = $params['cart'];
-		$dp = $this->packageShippingCost($cart, true);
-		if(!$dp){
-			return '';
-		}
+//		$dp = $this->packageShippingCost($cart, true);
+//		if(!$dp){
+//			return '';
+//		}
 		$addressObj = &$params['address'];
 		$soap = \acsws\classes\ACSWS::getInstance();
-		$storeInfo = $soap->validateAddress(array(
+
+		$address = array(
 			'street' => $addressObj->address1 . ( $addressObj->address2 ? $addressObj->address2 : '' ),
 			'number' => null,
 			'pc'     => $addressObj->postcode,
 			'area'   => $addressObj->city,
-		));
+		);
+
+		if(!$soap->isDisprosito($address)){
+			return '';
+		}
+
+		$storeInfo = $soap->validateAddress($address);
 
 		if(!isset($storeInfo[0])){
 			return '';
@@ -276,8 +283,8 @@ class ACSWebServices extends CarrierModule {
 	 * @since ${VERSION}
 	 */
 	public function packageShippingCost(Cart $cart, $dp ) {
-		if($cart->getOrderTotal(true, Cart::ONLY_PRODUCTS) > 80){ // TODO Implement in settings
-			return 0;
+		if($cart->getOrderTotal(true, Cart::ONLY_PRODUCTS) >= 80){ // TODO Implement in settings
+			if(!$dp) return 0;
 		}
 		$addressObj = new Address( $cart->id_address_delivery );
 
@@ -308,6 +315,8 @@ class ACSWebServices extends CarrierModule {
 		$soap = \acsws\classes\ACSWS::getInstance();
 
 		if($dp && !$soap->isDisprosito( $address )){
+			return false;
+		} elseif($soap->isDisprosito( $address ) && $cart->getOrderTotal(true, Cart::ONLY_PRODUCTS) >= 80){
 			return false;
 		}
 

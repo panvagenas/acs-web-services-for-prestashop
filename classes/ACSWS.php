@@ -100,7 +100,12 @@ class ACSWS extends Singleton{
 		);
 
 		$call = $this->cache->hasCall(new ACSWSCall(__METHOD__, $params, null));
+
 		if($call){
+			if(!$call->result && isset($address['area'])) {
+				unset($address['area']);
+				return $this->validateAddress($address);
+			}
 			return $call->result;
 		}
 
@@ -108,8 +113,8 @@ class ACSWS extends Singleton{
 		$soap->setParams($params);
 
 		$res = $soap->validateAddress();
-
-		if((!is_object($res) || !isset($res->station_id) || empty($res->station_id)) && isset($address['area'])){
+		$resultObj = isset($res[0]) ? $res[0] : null;
+		if((!is_object($resultObj) || !isset($resultObj->station_id) || empty($resultObj->station_id)) && isset($address['area'])){
 			unset($address['area']);
 			return $this->validateAddress($address);
 		}
