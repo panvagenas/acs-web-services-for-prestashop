@@ -192,7 +192,7 @@ class ACSWebServices extends CarrierModule {
 		$soap = \acsws\classes\ACSWS::getInstance();
 
 		$address = array(
-			'street' => $addressObj->address1 . ( $addressObj->address2 ? $addressObj->address2 : '' ),
+			'street' => $addressObj->address1 . ( $addressObj->address2 && $addressObj->address2 != 'undefined' ? ' ' . $addressObj->address2 : '' ),
 			'number' => null,
 			'pc'     => $addressObj->postcode,
 			'area'   => $addressObj->city,
@@ -306,7 +306,7 @@ class ACSWebServices extends CarrierModule {
 		}
 
 		$address = array(
-			'street' => $addressObj->address1 . ( $addressObj->address2 ? $addressObj->address2 : '' ),
+			'street' => $addressObj->address1 . ( $addressObj->address2 && $addressObj->address2 != 'undefined' ? ' ' . $addressObj->address2 : '' ),
 			'number' => null,
 			'pc'     => $addressObj->postcode,
 			'area'   => $addressObj->city,
@@ -377,9 +377,9 @@ class ACSWebServices extends CarrierModule {
 				$groups = Group::getGroups( true );
 				foreach ( $groups as $group ) {
 					Db::getInstance()->insert( 'carrier_group', array(
-							'id_carrier' => (int) $carrier->id,
-							'id_group'   => (int) $group['id_group']
-						) );
+						'id_carrier' => (int) $carrier->id,
+						'id_group'   => (int) $group['id_group']
+					) );
 				}
 				// Create price range
 				$rangePrice             = new RangePrice();
@@ -397,23 +397,23 @@ class ACSWebServices extends CarrierModule {
 				$zones = Zone::getZones( true );
 				foreach ( $zones as $zone ) {
 					Db::getInstance()->insert( 'carrier_zone', array(
-							'id_carrier' => (int) $carrier->id,
-							'id_zone'    => (int) $zone['id_zone']
-						) );
+						'id_carrier' => (int) $carrier->id,
+						'id_zone'    => (int) $zone['id_zone']
+					) );
 					Db::getInstance()->insert( 'delivery', array(
-							'id_carrier'      => (int) $carrier->id,
-							'id_range_price'  => (int) $rangePrice->id,
-							'id_range_weight' => null,
-							'id_zone'         => (int) $zone['id_zone'],
-							'price'           => '0'
-						) );
+						'id_carrier'      => (int) $carrier->id,
+						'id_range_price'  => (int) $rangePrice->id,
+						'id_range_weight' => null,
+						'id_zone'         => (int) $zone['id_zone'],
+						'price'           => '0'
+					) );
 					Db::getInstance()->insert( 'delivery', array(
-							'id_carrier'      => (int) $carrier->id,
-							'id_range_price'  => null,
-							'id_range_weight' => (int) $rangeWeight->id,
-							'id_zone'         => (int) $zone['id_zone'],
-							'price'           => '0'
-						) );
+						'id_carrier'      => (int) $carrier->id,
+						'id_range_price'  => null,
+						'id_range_weight' => (int) $rangeWeight->id,
+						'id_zone'         => (int) $zone['id_zone'],
+						'price'           => '0'
+					) );
 				}
 				copy( dirname( __FILE__ ) . '/img/logo.png', _PS_SHIP_IMG_DIR_ . '/' . (int) $carrier->id . '.jpg' );
 				Configuration::updateValue( $carrier_key, $carrier->id );
