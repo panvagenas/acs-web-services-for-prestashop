@@ -136,7 +136,8 @@ class ACSWebServices extends CarrierModule {
 		}
 		if ( ! $this->registerHook( 'updateCarrier' ) OR
 		     ! $this->registerHook( 'displayCarrierList' ) OR
-		     ! $this->registerHook( 'displayAdminOrder' )
+		     ! $this->registerHook( 'displayAdminOrder' ) OR
+		     ! $this->registerHook( 'beforeDisplayPDFFooter' )
 		) {
 			return false;
 		}
@@ -183,11 +184,6 @@ class ACSWebServices extends CarrierModule {
 	 * @since ${VERSION}
 	 */
 	public function hookDisplayCarrierList($params) {
-		$cart = $params['cart'];
-//		$dp = $this->packageShippingCost($cart, true);
-//		if(!$dp){
-//			return '';
-//		}
 		$addressObj = &$params['address'];
 		$soap = \acsws\classes\ACSWS::getInstance();
 
@@ -244,6 +240,63 @@ class ACSWebServices extends CarrierModule {
 	 */
 	public function hookDisplayAdminOrder() {
 		return '';
+	}
+
+	public function hookBeforeDisplayPDFFooter(){
+		/* @var Order $order */
+		$order = $this->context->smarty->getVariable('order');
+
+		if($order instanceof Undefined_Smarty_Variable){
+			return '';
+		} else {
+			$order = $order->value;
+		}
+		if($order->id_address_delivery){
+			$addressObj = new Address($order->id_address_delivery);
+		} elseif($order->id_address_invoice) {
+			$addressObj = new Address($order->id_address_invoice);
+		} else {
+			return '';
+		}
+
+		if(!$addressObj->address1) return '';
+
+		$soap = \acsws\classes\ACSWS::getInstance();
+
+		$address = array(
+			'street' => $addressObj->address1 . ( $addressObj->address2 && $addressObj->address2 != 'undefined' ? ' ' . $addressObj->address2 : '' ),
+			'number' => null,
+			'pc'     => $addressObj->postcode,
+			'area'   => $addressObj->city,
+		);
+
+		$carrier = new Carrier($order->id_carrier);
+
+		if(Configuration::get('ACS_CLDE') == $order->id_carrier && $carrier){
+			$out = array(
+				$this->l('Shipping Method: ') => $carrier->name,
+				$this->l('Service: ') => $this->l('door-to-door')
+			);
+		} elseif(Configuration::get('ACS_DP') == $order->id_carrier && $carrier) {
+			$storeInfo = $soap->validateAddress($address);
+
+			if(!isset($storeInfo[0])){
+				return '';
+			} else {
+				$store = $storeInfo[0];
+				$out = array(
+					$this->l('Shipping Method: ') => $carrier->name,
+					$this->l('Service: ') => $this->l('door-to-station'),
+					$this->l('Station Details: ') => $store->station_description . ', ' . $store->station_address . ', ' . $store->station_phone
+				);
+			}
+		} else {
+			return '';
+		}
+
+		foreach ( $out as $k => $v ) {
+			echo '<strong>' . $k . '</strong>' . $v . '<br>';
+		}
 	}
 
 	/**
