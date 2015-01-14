@@ -2,8 +2,8 @@
 
 global $_MODULE;
 $_MODULE = array();
-$_MODULE['<{acswebservices}prestashop>acswebservices_c6bce2a0c02ed4dc352779f8ecfdb3f5'] = 'Κωδικός εταιρείας';
-$_MODULE['<{acswebservices}prestashop>acswebservices_522f92711b6dd15ddd4dd8cdce26010e'] = 'Συνθηματικό';
-$_MODULE['<{acswebservices}prestashop>acswebservices_f6039d44b29456b20f8f373155ae4973'] = 'Χρήστης';
-$_MODULE['<{acswebservices}prestashop>acswebservices_8a521223e53701e77f81e4e2d16e7db1'] = 'Συνθηματικό Χρήστη';
-$_MODULE['<{acswebservices}prestashop>acswebservices_d37c2bf1bd3143847fca087b354f920e'] = 'Κωδικός Πελάτη';
+$_MODULE['<{acswebservices}prestashop>acswebservices_264867552b8078e6661e805453cd4585'] = 'Τρόπος Αποστολής: ';
+$_MODULE['<{acswebservices}prestashop>acswebservices_a041d1af25be8cc6f327d9efa40a9f2b'] = 'Υπηρεσία: ';
+$_MODULE['<{acswebservices}prestashop>acswebservices_39d34d079b9095fa1f3d7aa10da90fb4'] = 'πόρτα-πόρτα';
+$_MODULE['<{acswebservices}prestashop>acswebservices_21293810a2047f783418c8ee98254538'] = 'παραλαβή από το κατάστημα';
+$_MODULE['<{acswebservices}prestashop>acswebservices_ffae9f1bac67489a856afe6df16fbaa4'] = 'Πληροφορίες Καταστήματος: ';
