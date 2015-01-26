@@ -272,12 +272,13 @@ class ACSWebServices extends CarrierModule {
 
 		$carrier = new Carrier($order->id_carrier);
 
-		if(Configuration::get('ACS_CLDE') == $order->id_carrier && $carrier){
+		if(Configuration::get('ACS_DP') == $order->id_carrier && $carrier
+		   || (Configuration::get('ACS_CLDE') == $order->id_carrier && $carrier && !$soap->isDisprosito($address))){
 			$out = array(
 				$this->l('Τρόπος Αποστολής: ') => $carrier->name,
-				$this->l('Υπηρεσία: ') => $this->l('πόρτα-πόρτα')
+				$this->l('Υπηρεσία: ') => $this->l('Παράδοση στη διεύθυνση αποστολής')
 			);
-		} elseif(Configuration::get('ACS_DP') == $order->id_carrier && $carrier) {
+		} elseif(Configuration::get('ACS_CLDE') == $order->id_carrier && $carrier && $soap->isDisprosito($address)) {
 			$storeInfo = $soap->validateAddress($address);
 
 			if(!isset($storeInfo[0])){
@@ -286,7 +287,7 @@ class ACSWebServices extends CarrierModule {
 				$store = $storeInfo[0];
 				$out = array(
 					$this->l('Τρόπος Αποστολής: ') => $carrier->name,
-					$this->l('Υπηρεσία: ') => $this->l('παραλαβή από το κατάστημα'),
+					$this->l('Υπηρεσία: ') => $this->l('Παραλαβή από κατάστημα του μεταφορέα'),
 					$this->l('Πληροφορίες Καταστήματος: ') => $store->station_description . ', ' . $store->station_address . ', ' . $store->station_phone
 				);
 			}
