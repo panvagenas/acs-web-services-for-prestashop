@@ -37,7 +37,6 @@ class ACSSoapAreaService extends ACSSoap{
 	}
 
 	public function getByZipCode(){
-		var_dump($this->params);
 		if(!$this->isReadyForCall()){
 			return false;
 		}
